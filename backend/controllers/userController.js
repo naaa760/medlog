@@ -223,6 +223,44 @@ const unfollowUser = asyncHandler(async (req, res) => {
   res.status(200).json({ message: "User unfollowed successfully" });
 });
 
+// @desc    Sync user from Clerk
+// @route   POST /api/users/sync
+// @access  Public
+const syncUser = asyncHandler(async (req, res) => {
+  const { firstName, lastName, username, email, password, clerkId } = req.body;
+
+  // Check if user exists by clerkId
+  let user = await User.findOne({ clerkId });
+
+  if (user) {
+    // Update existing user
+    user.firstName = firstName || user.firstName;
+    user.lastName = lastName || user.lastName;
+    user.username = username || user.username;
+    user.email = email || user.email;
+    await user.save();
+  } else {
+    // Create new user
+    user = await User.create({
+      firstName,
+      lastName,
+      username,
+      email,
+      password,
+      clerkId,
+    });
+  }
+
+  res.status(200).json({
+    _id: user._id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    username: user.username,
+    email: user.email,
+    token: generateToken(user._id),
+  });
+});
+
 module.exports = {
   registerUser,
   loginUser,
@@ -231,4 +269,5 @@ module.exports = {
   getUserById,
   followUser,
   unfollowUser,
+  syncUser,
 };

@@ -8,6 +8,7 @@ const {
   getUserById,
   followUser,
   unfollowUser,
+  syncUser,
 } = require("../controllers/userController");
 const { protect } = require("../middleware/authMiddleware");
 
@@ -21,5 +22,8 @@ router.put("/profile", protect, updateUserProfile);
 router.route("/:id").get(getUserById);
 router.put("/:id/follow", protect, followUser);
 router.put("/:id/unfollow", protect, unfollowUser);
+
+// Add this with the other routes
+router.post("/sync", syncUser);
 
 module.exports = router;
