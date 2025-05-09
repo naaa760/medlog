@@ -298,11 +298,8 @@ export default function ProfilePage() {
                           {activeArticleMenu === article.id && (
                             <div className="absolute right-0 mt-1 w-56 bg-white rounded-lg shadow-xl z-10 border border-gray-200 overflow-hidden">
                               <div className="py-1">
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    router.push(`/write?edit=${article.id}`);
-                                  }}
+                                <Link
+                                  href="/settings"
                                   className="w-full text-left px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 flex items-center transition duration-150"
                                 >
                                   <svg
@@ -318,8 +315,8 @@ export default function ProfilePage() {
                                       d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
                                     />
                                   </svg>
-                                  Edit story
-                                </button>
+                                  Edit profile
+                                </Link>
 
                                 <button
                                   onClick={(e) => {
@@ -553,50 +550,12 @@ export default function ProfilePage() {
                   for reading my content and keep reading share it with others.
                   Thank you!
                 </p>
-                <button className="text-green-600 font-medium hover:text-green-700 transition duration-150">
+                <Link
+                  href="/settings"
+                  className="text-green-600 font-medium hover:text-green-700 transition duration-150"
+                >
                   Edit profile
-                </button>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-100">
-              <h3 className="font-bold text-gray-900 mb-4">Following</h3>
-              <div className="space-y-4">
-                {following.map((account) => (
-                  <div
-                    key={account.id}
-                    className="flex items-center justify-between group"
-                  >
-                    <div className="flex items-center">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 mr-3 flex-shrink-0 overflow-hidden">
-                        <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-600 flex items-center justify-center text-white text-xs font-medium">
-                          {account.name.substring(0, 2).toUpperCase()}
-                        </div>
-                      </div>
-                      <span className="font-medium text-gray-800 group-hover:text-gray-900">
-                        {account.name}
-                      </span>
-                    </div>
-                    <button className="text-gray-400 hover:text-gray-600 transition duration-150">
-                      <svg
-                        width="20"
-                        height="20"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          clipRule="evenodd"
-                          d="M4.39 12c0 .55.2 1.02.59 1.41.39.4.86.59 1.4.59.56 0 1.03-.2 1.42-.59.4-.39.59-.86.59-1.41 0-.55-.2-1.02-.59-1.41A1.93 1.93 0 0 0 6.4 10c-.55 0-1.02.2-1.41.59-.4.39-.6.86-.6 1.41zM10 12c0 .55.2 1.02.58 1.41.4.4.87.59 1.42.59.54 0 1.02-.2 1.4-.59.4-.39.6-.86.6-1.41 0-.55-.2-1.02-.6-1.41a1.93 1.93 0 0 0-1.4-.59c-.55 0-1.04.2-1.42.59-.4.39-.58.86-.58 1.41zm5.6 0c0 .55.2 1.02.57 1.41.4.4.88.59 1.43.59.57 0 1.04-.2 1.43-.59.39-.39.57-.86.57-1.41 0-.55-.2-1.02-.57-1.41A1.93 1.93 0 0 0 17.6 10c-.55 0-1.04.2-1.43.59-.38.39-.57.86-.57 1.41z"
-                          fill="currentColor"
-                        ></path>
-                      </svg>
-                    </button>
-                  </div>
-                ))}
-                <button className="text-green-600 text-sm font-medium hover:text-green-700 transition duration-150">
-                  See all ({following.length})
-                </button>
+                </Link>
               </div>
             </div>
           </div>

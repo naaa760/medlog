@@ -47,7 +47,8 @@ export default function ArticlePage({ params }) {
       <div className="max-w-2xl mx-auto px-4 py-16 text-center">
         <h1 className="text-3xl font-bold mb-4">Article not found</h1>
         <p className="text-gray-600 mb-8">
-          The article you are looking for doesn't exist or has been removed.
+          The article you are looking for doesn&apos;t exist or has been
+          removed.
         </p>
         <Link
           href="/profile"
