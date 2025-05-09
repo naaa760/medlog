@@ -1,19 +1,19 @@
-import { ClerkProvider } from "@clerk/nextjs";
-import { Inter } from "next/font/google";
 import "./globals.css";
-
-const inter = Inter({ subsets: ["latin"] });
+import { ClerkProvider } from "@clerk/nextjs";
+import NavbarWrapper from "@/components/NavbarWrapper";
 
 export const metadata = {
   title: "Medium Clone",
-  description: "A platform for reading and writing stories",
+  description: "A clone of Medium built with Next.js",
 };
 
 export default function RootLayout({ children }) {
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={inter.className}>{children}</body>
+        <body>
+          <NavbarWrapper>{children}</NavbarWrapper>
+        </body>
       </html>
     </ClerkProvider>
   );

@@ -1,134 +1,222 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { UserButton } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import styles from "./article.module.css";
 
 export default function ArticlePage({ params }) {
   const { id } = params;
+  const { user } = useUser();
+  const router = useRouter();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [claps, setClaps] = useState(0);
-  const [userClapped, setUserClapped] = useState(false);
 
   useEffect(() => {
-    // Mock data - will be replaced with API call
-    setArticle({
-      id: id,
-      title: "The Power of JavaScript",
-      content: `
-        <p>JavaScript has become the backbone of modern web development. From simple websites to complex applications, JavaScript powers the interactive elements that users have come to expect.</p>
-        <h2>Why JavaScript Matters</h2>
-        <p>As the only programming language native to web browsers, JavaScript has a unique position in the web development ecosystem. It allows developers to create dynamic content, control multimedia, animate images, and pretty much everything else.</p>
-        <p>With the advent of Node.js, JavaScript broke free from the browser, enabling server-side applications with the same language used on the frontend. This gave rise to the concept of "JavaScript everywhere" and full-stack development with a single language.</p>
-        <h2>Modern JavaScript Features</h2>
-        <p>ECMAScript 6 (ES6) and subsequent versions have introduced powerful features that make JavaScript more expressive and developer-friendly:</p>
-        <ul>
-          <li>Arrow functions</li>
-          <li>Template literals</li>
-          <li>Destructuring</li>
-          <li>Spread/rest operators</li>
-          <li>Classes</li>
-          <li>Modules</li>
-          <li>Promises and async/await</li>
-        </ul>
-        <p>These features have transformed JavaScript into a more mature language suitable for large-scale applications.</p>
-        <h2>The JavaScript Ecosystem</h2>
-        <p>One of JavaScript's greatest strengths is its vast ecosystem. Libraries and frameworks like React, Vue, and Angular have revolutionized frontend development, while Express, Next.js, and NestJS have become popular choices for backend development.</p>
-        <p>The npm registry, JavaScript's package manager, is the largest software registry in the world, with over a million packages available for developers to use.</p>
-        <h2>Conclusion</h2>
-        <p>JavaScript's journey from a simple scripting language to a powerful programming language used by millions of developers worldwide is remarkable. As web technologies continue to evolve, JavaScript remains at the forefront, adapting and growing to meet new challenges.</p>
-        <p>Whether you're just starting your programming journey or you're a seasoned developer, JavaScript offers something for everyone, making it an essential language to learn in today's digital world.</p>
-      `,
-      author: "John Doe",
-      authorBio: "Frontend Developer and JavaScript enthusiast",
-      date: "Oct 10, 2023",
-      readTime: "5 min read",
-      category: "Programming",
-      claps: 42,
-      image: "https://picsum.photos/id/237/1200/600",
-    });
-    setClaps(42);
-    setLoading(false);
+    // Load article from localStorage
+    try {
+      const savedArticles = JSON.parse(
+        localStorage.getItem("medium-published-articles") || "[]"
+      );
+      const foundArticle = savedArticles.find(
+        (article) => article.id.toString() === id
+      );
+
+      if (foundArticle) {
+        setArticle(foundArticle);
+      } else {
+        console.error("Article not found");
+      }
+    } catch (error) {
+      console.error("Error loading article:", error);
+    } finally {
+      setLoading(false);
+    }
   }, [id]);
 
-  const handleClap = () => {
-    if (!userClapped) {
-      setClaps(claps + 1);
-      setUserClapped(true);
-      // API call would go here in a real implementation
-    }
-  };
-
   if (loading) {
-    return <div className={styles.loading}>Loading article...</div>;
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p>Loading article...</p>
+      </div>
+    );
+  }
+
+  if (!article) {
+    return (
+      <div className="max-w-2xl mx-auto px-4 py-16 text-center">
+        <h1 className="text-3xl font-bold mb-4">Article not found</h1>
+        <p className="text-gray-600 mb-8">
+          The article you are looking for doesn't exist or has been removed.
+        </p>
+        <Link
+          href="/profile"
+          className="inline-block bg-gray-900 text-white px-6 py-3 rounded-full"
+        >
+          Go to your profile
+        </Link>
+      </div>
+    );
   }
 
   return (
-    <div className={styles.articleContainer}>
-      <header className={styles.header}>
-        <div className={styles.headerContent}>
-          <Link href="/feed" className={styles.logo}>
-            <img src="/medium-logo.png" alt="Medium Logo" />
-          </Link>
-          <div className={styles.headerRight}>
-            <Link href="/write" className={styles.writeLink}>
-              Write
-            </Link>
-            <UserButton afterSignOutUrl="/" />
+    <div className="max-w-2xl mx-auto px-4 py-8">
+      <article>
+        <header className="mb-8">
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+            {article.title}
+          </h1>
+
+          <div className="flex items-center mb-6">
+            <div className="flex items-center">
+              {user?.imageUrl ? (
+                <img
+                  src={user.imageUrl}
+                  alt={user.firstName || user.username}
+                  className="w-12 h-12 rounded-full mr-3"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 mr-3">
+                  {(
+                    user?.firstName?.[0] ||
+                    user?.username?.[0] ||
+                    ""
+                  ).toUpperCase()}
+                </div>
+              )}
+
+              <div>
+                <p className="font-medium text-gray-900">
+                  {article.author ||
+                    user?.firstName ||
+                    user?.username ||
+                    "Anonymous"}
+                </p>
+                <div className="text-gray-500 text-sm flex items-center">
+                  <span>{article.date}</span>
+                  <span className="mx-1">·</span>
+                  <span>{article.readTime}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="ml-auto flex space-x-4">
+              <button className="text-gray-400 hover:text-gray-600">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M17.5 1.25a.5.5 0 0 1 1 0v2.5H21a.5.5 0 0 1 0 1h-2.5v2.5a.5.5 0 0 1-1 0v-2.5H15a.5.5 0 0 1 0-1h2.5v-2.5zm-11 4.5a1 1 0 0 1 1-1H11a.5.5 0 0 0 0-1H7.5a2 2 0 0 0-2 2v14a.5.5 0 0 0 .8.4l5.7-4.4 5.7 4.4a.5.5 0 0 0 .8-.4v-8.5a.5.5 0 0 0-1 0v7.48l-5.2-4a.5.5 0 0 0-.6 0l-5.2 4V5.75z"
+                    fill="currentColor"
+                  ></path>
+                </svg>
+              </button>
+
+              <button
+                onClick={() => router.push(`/write?edit=${article.id}`)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </header>
+
+        <div className="article-content prose prose-lg max-w-none">
+          {article.blocks && article.blocks.length > 0 ? (
+            <div>
+              {article.blocks.map((block) => (
+                <div key={block.id} className="mb-6">
+                  {block.type === "text" && (
+                    <div className="whitespace-pre-wrap">{block.content}</div>
+                  )}
+
+                  {block.type === "image" && (
+                    <div className="my-6">
+                      <img
+                        src={block.content}
+                        alt="Article image"
+                        className="max-w-full rounded-md"
+                      />
+                    </div>
+                  )}
+
+                  {block.type === "video" && (
+                    <div className="my-6">
+                      <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
+                        <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+                          <p>Video: {block.content}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {block.type === "embed" && (
+                    <div className="my-6">
+                      <div className="relative pt-[56.25%] bg-gray-100 rounded-md">
+                        <div className="absolute inset-0 flex items-center justify-center text-gray-500">
+                          <p>Embed: {block.content}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p>{article.content || article.excerpt}</p>
+          )}
+        </div>
+      </article>
+
+      <hr className="my-8 border-gray-200" />
+
+      <div className="flex items-center justify-between py-6">
+        <div className="flex items-center">
+          {user?.imageUrl ? (
+            <img
+              src={user.imageUrl}
+              alt={user.firstName || user.username}
+              className="w-16 h-16 rounded-full mr-4"
+            />
+          ) : (
+            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-600 mr-4">
+              {(
+                user?.firstName?.[0] ||
+                user?.username?.[0] ||
+                ""
+              ).toUpperCase()}
+            </div>
+          )}
+
+          <div>
+            <h3 className="font-medium text-gray-900 mb-1">
+              Written by{" "}
+              {article.author ||
+                user?.firstName ||
+                user?.username ||
+                "Anonymous"}
+            </h3>
+            <p className="text-gray-600 text-sm">
+              Author of articles on Medium.
+            </p>
           </div>
         </div>
-      </header>
 
-      <main className={styles.main}>
-        <article className={styles.article}>
-          <h1 className={styles.articleTitle}>{article.title}</h1>
-
-          <div className={styles.articleMeta}>
-            <div className={styles.authorInfo}>
-              <div className={styles.author}>
-                <span>{article.author}</span>
-              </div>
-              <div className={styles.articleDetails}>
-                <span>{article.date}</span>
-                <span className={styles.dot}>·</span>
-                <span>{article.readTime}</span>
-              </div>
-            </div>
-
-            <div className={styles.socialActions}>
-              <button className={styles.clapButton} onClick={handleClap}>
-                <span className={styles.clapIcon}>👏</span>
-                <span>{claps}</span>
-              </button>
-            </div>
-          </div>
-
-          <div className={styles.featuredImage}>
-            <img src={article.image} alt={article.title} />
-          </div>
-
-          <div
-            className={styles.articleContent}
-            dangerouslySetInnerHTML={{ __html: article.content }}
-          />
-
-          <div className={styles.articleFooter}>
-            <div className={styles.authorBio}>
-              <h3>About the author</h3>
-              <p>{article.authorBio}</p>
-            </div>
-
-            <div className={styles.articleActions}>
-              <button className={styles.clapButtonLarge} onClick={handleClap}>
-                <span className={styles.clapIcon}>👏</span>
-                <span>{claps}</span>
-              </button>
-            </div>
-          </div>
-        </article>
-      </main>
+        <button className="border border-gray-300 rounded-full px-4 py-1 text-sm text-gray-700 hover:bg-gray-50">
+          Follow
+        </button>
+      </div>
     </div>
   );
 }

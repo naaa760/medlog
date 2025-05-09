@@ -26,6 +26,7 @@ export default function WritePage() {
   const titleRef = useRef(null);
   const userMenuRef = useRef(null);
   const fileInputRef = useRef(null);
+  const [editingArticleId, setEditingArticleId] = useState(null);
 
   // Auto-resize the content textarea as user types
   useEffect(() => {
@@ -100,6 +101,42 @@ export default function WritePage() {
       }
     } catch (error) {
       console.error("Error loading draft:", error);
+    }
+  }, []);
+
+  // Check for edit parameter in URL
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      const editId = params.get("edit");
+
+      if (editId) {
+        try {
+          const savedArticles = JSON.parse(
+            localStorage.getItem("medium-published-articles") || "[]"
+          );
+          const articleToEdit = savedArticles.find(
+            (article) => article.id.toString() === editId
+          );
+
+          if (articleToEdit) {
+            setTitle(articleToEdit.title || "");
+
+            if (articleToEdit.blocks && articleToEdit.blocks.length > 0) {
+              setBlocks(articleToEdit.blocks);
+            } else if (articleToEdit.content) {
+              // Handle legacy format
+              setBlocks([
+                { id: uuidv4(), type: "text", content: articleToEdit.content },
+              ]);
+            }
+
+            setEditingArticleId(parseInt(editId));
+          }
+        } catch (error) {
+          console.error("Error loading article for editing:", error);
+        }
+      }
     }
   }, []);
 
@@ -352,8 +389,8 @@ export default function WritePage() {
       });
 
       // Create the article object
-      const newArticle = {
-        id: Date.now(),
+      const articleData = {
+        id: editingArticleId || Date.now(),
         title,
         blocks: simplifiedBlocks,
         excerpt:
@@ -382,14 +419,32 @@ export default function WritePage() {
         existingArticles = [];
       }
 
-      // Limit the number of stored articles to prevent quota issues
-      const MAX_ARTICLES = 10;
-      if (existingArticles.length >= MAX_ARTICLES) {
-        existingArticles = existingArticles.slice(0, MAX_ARTICLES - 1);
+      if (editingArticleId) {
+        // Update existing article
+        const articleIndex = existingArticles.findIndex(
+          (article) => article.id === editingArticleId
+        );
+
+        if (articleIndex !== -1) {
+          // Preserve the isPinned status if it exists
+          if (existingArticles[articleIndex].isPinned) {
+            articleData.isPinned = true;
+          }
+
+          existingArticles[articleIndex] = articleData;
+        } else {
+          existingArticles.unshift(articleData);
+        }
+      } else {
+        // Add new article
+        existingArticles.unshift(articleData);
       }
 
-      // Add the new article
-      existingArticles.unshift(newArticle);
+      // Limit the number of stored articles to prevent quota issues
+      const MAX_ARTICLES = 10;
+      if (existingArticles.length > MAX_ARTICLES) {
+        existingArticles = existingArticles.slice(0, MAX_ARTICLES);
+      }
 
       try {
         // Try to save to localStorage, with fallback
@@ -408,8 +463,8 @@ export default function WritePage() {
         ) {
           // More aggressive reduction - keep only newest article with minimal data
           const minimalArticle = {
-            ...newArticle,
-            blocks: newArticle.blocks.map((block) => {
+            ...articleData,
+            blocks: articleData.blocks.map((block) => {
               if (block.type === "image") {
                 return { ...block, content: null, thumbnailContent: null };
               }
@@ -438,10 +493,9 @@ export default function WritePage() {
       // Clear the draft
       localStorage.removeItem("medium-draft");
 
-      // Simulate API delay
+      // Redirect to profile after short delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      router.push("/profile"); // Redirect to profile to see published posts
+      router.push("/profile");
     } catch (error) {
       console.error("Error publishing:", error);
       alert("Failed to publish your story: " + error.message);
