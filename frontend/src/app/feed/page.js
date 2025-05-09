@@ -52,6 +52,9 @@ export default function Feed() {
         "https://miro.medium.com/v2/resize:fill:40:40/1*VJCuJTQ6-kMQmKqIlzOtRg.jpeg",
     },
   ]);
+  const [followedTopicsInStorage, setFollowedTopicsInStorage] = useState([]);
+  const [filteredArticles, setFilteredArticles] = useState([]);
+  const [allTopics, setAllTopics] = useState([]);
 
   useEffect(() => {
     // Load articles from localStorage instead of API
@@ -81,9 +84,142 @@ export default function Feed() {
     }
   }, [isLoaded, user]);
 
+  useEffect(() => {
+    // Load followed topics from localStorage
+    try {
+      const savedTopics = JSON.parse(
+        localStorage.getItem("medium-followed-topics") || "[]"
+      );
+      setFollowedTopics(savedTopics);
+      setFollowedTopicsInStorage(savedTopics);
+    } catch (err) {
+      console.error("Failed to load followed topics:", err);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (followedTopics.length !== followedTopicsInStorage.length) {
+      localStorage.setItem(
+        "medium-followed-topics",
+        JSON.stringify(followedTopics)
+      );
+      setFollowedTopicsInStorage(followedTopics);
+    }
+  }, [followedTopics, followedTopicsInStorage]);
+
+  useEffect(() => {
+    // Filter articles based on active tab and followed topics
+    const filterArticles = () => {
+      if (activeTab === "for-you") {
+        setFilteredArticles(articles);
+      } else if (activeTab === "following" && followedTopics.length > 0) {
+        // Show only articles with topics the user follows
+        setFilteredArticles(
+          articles.filter(
+            (article) =>
+              article.topics &&
+              article.topics.some((topic) => followedTopics.includes(topic))
+          )
+        );
+      } else {
+        // Filter by the currently active tab as a topic
+        const topicToFilter = activeTab.replace(/-/g, " ");
+        setFilteredArticles(
+          articles.filter(
+            (article) =>
+              article.topics &&
+              article.topics.some(
+                (topic) => topic.toLowerCase() === topicToFilter.toLowerCase()
+              )
+          )
+        );
+      }
+    };
+
+    filterArticles();
+
+    // Listen for real-time article updates (simulating WebSocket)
+    const handleNewArticle = (event) => {
+      const { article } = event.detail;
+      console.log("New article received in real-time:", article);
+
+      // Update main articles list
+      setArticles((prevArticles) => [article, ...prevArticles]);
+
+      // Explicitly determine if this article should be shown in current view
+      const shouldShowInCurrentTab =
+        activeTab === "for-you" ||
+        (activeTab === "following" &&
+          article.topics?.some((topic) => followedTopics.includes(topic))) ||
+        article.topics?.some(
+          (topic) => topic.toLowerCase().replace(/\s+/g, "-") === activeTab
+        );
+
+      if (shouldShowInCurrentTab) {
+        // If it matches the current tab criteria, add it to filtered articles too
+        setFilteredArticles((prevFiltered) => [article, ...prevFiltered]);
+      }
+
+      // Show notification for followed topics
+      if (article.topics?.some((topic) => followedTopics.includes(topic))) {
+        const matchedTopic = article.topics.find((t) =>
+          followedTopics.includes(t)
+        );
+        showNotification(`New article in ${matchedTopic}`);
+      }
+    };
+
+    // Add event listener for new articles
+    window.addEventListener("new-article-published", handleNewArticle);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("new-article-published", handleNewArticle);
+    };
+  }, [articles, activeTab, followedTopics]);
+
+  useEffect(() => {
+    // Extract all unique topics from articles
+    const topics = new Set();
+    articles.forEach((article) => {
+      if (article.topics) {
+        article.topics.forEach((topic) => topics.add(topic));
+      }
+    });
+    setAllTopics(Array.from(topics));
+  }, [articles]);
+
+  const showNotification = (message) => {
+    // You could use a toast library here, but for simplicity:
+    const notification = document.createElement("div");
+    notification.className = styles.notification;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+
+    // Remove after 3 seconds
+    setTimeout(() => {
+      notification.classList.add(styles.fadeOut);
+      setTimeout(() => {
+        document.body.removeChild(notification);
+      }, 500);
+    }, 3000);
+  };
+
   const followTopic = (topic) => {
-    setFollowedTopics([...followedTopics, topic]);
+    const newFollowedTopics = [...followedTopics, topic];
+    setFollowedTopics(newFollowedTopics);
     setTopicsToFollow(topicsToFollow.filter((t) => t !== topic));
+
+    // Re-filter articles immediately to show relevant content
+    if (activeTab === "following") {
+      setFilteredArticles(
+        articles.filter(
+          (article) =>
+            article.topics &&
+            article.topics.some((t) => newFollowedTopics.includes(t))
+        )
+      );
+    }
   };
 
   const unfollowTopic = (topic) => {
@@ -205,6 +341,21 @@ export default function Feed() {
           >
             JavaScript
           </button>
+          {allTopics.map((topic, index) => (
+            <button
+              key={index}
+              className={`${styles.topicTab} ${
+                activeTab === topic.toLowerCase().replace(/\s+/g, "-")
+                  ? styles.activeTab
+                  : ""
+              }`}
+              onClick={() =>
+                setActiveTab(topic.toLowerCase().replace(/\s+/g, "-"))
+              }
+            >
+              {topic}
+            </button>
+          ))}
           <button className={styles.moreTopicsBtn}>
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
               <path
@@ -226,15 +377,34 @@ export default function Feed() {
               <div className={styles.loading}>Loading articles...</div>
             ) : error ? (
               <div className={styles.error}>{error}</div>
-            ) : articles.length === 0 ? (
+            ) : filteredArticles.length === 0 ? (
               <div className={styles.noArticles}>
-                <p>No articles found.</p>
-                <Link href="/write" className={styles.writeFirstLink}>
-                  Write your first story
-                </Link>
+                {activeTab === "following" && followedTopics.length === 0 ? (
+                  <>
+                    <p>Follow some topics to see articles here.</p>
+                    <div className={styles.suggestedTopicsSmall}>
+                      {topicsToFollow.slice(0, 5).map((topic, index) => (
+                        <button
+                          key={index}
+                          className={styles.topicTagSmall}
+                          onClick={() => followTopic(topic)}
+                        >
+                          {topic}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <p>No articles found in this category yet.</p>
+                    <Link href="/write" className={styles.writeFirstLink}>
+                      Write the first story
+                    </Link>
+                  </>
+                )}
               </div>
             ) : (
-              articles.map((article) => (
+              filteredArticles.map((article) => (
                 <article key={article.id} className={styles.articleCard}>
                   <div className={styles.articleContent}>
                     <div className={styles.articleAuthor}>
@@ -261,6 +431,25 @@ export default function Feed() {
                       <h2 className={styles.articleTitle}>{article.title}</h2>
                     </Link>
                     <p className={styles.articleExcerpt}>{article.excerpt}</p>
+                    {article.topics && article.topics.length > 0 && (
+                      <div className={styles.articleTopics}>
+                        {article.topics.map((topic, index) => (
+                          <span
+                            key={index}
+                            className={styles.articleTopic}
+                            onClick={() => {
+                              // Set active tab to this topic's tab
+                              const topicTab = topic
+                                .toLowerCase()
+                                .replace(/\s+/g, "-");
+                              setActiveTab(topicTab);
+                            }}
+                          >
+                            {topic}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <div className={styles.articleMeta}>
                       <div className={styles.metaLeft}>
                         <span className={styles.readTime}>

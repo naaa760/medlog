@@ -353,176 +353,125 @@ export default function WritePage() {
     }
   };
 
-  const handlePublish = async () => {
-    if (
-      !title ||
-      blocks.every((block) => block.type === "text" && !block.content)
-    ) {
-      alert("Please add a title and content to your story");
+  const publishArticle = async () => {
+    if (!title.trim()) {
+      alert("Please add a title to your article");
       return;
     }
 
-    setIsSaving(true);
+    if (blocks.length === 0 || blocks.every((block) => !block.content.trim())) {
+      alert("Please add some content to your article");
+      return;
+    }
 
     try {
-      // Get a plain text version for excerpt
-      const plainText = blocks
-        .filter((block) => block.type === "text")
-        .map((block) => block.content)
-        .join("\n");
+      setIsSaving(true);
 
-      // Find the first image to use as cover (if any)
-      const firstImage =
-        blocks.find((block) => block.type === "image")?.content || null;
+      // Extract topics from content - look for hashtags or determine category
+      const contentText = blocks.map((b) => b.content).join(" ");
+      const detectedTopics = detectTopicsFromContent(contentText);
 
-      // Create a simplified version of blocks for storage (with optimized images)
-      const simplifiedBlocks = blocks.map((block) => {
-        if (block.type === "image") {
-          // Further reduce image quality for storage if needed
-          return {
-            ...block,
-            // Keep a smaller thumbnail version for listing
-            thumbnailContent: reduceThumbnailSize(block.content),
-          };
-        }
-        return block;
-      });
+      // Prompt user to add topics if none detected
+      const finalTopics =
+        detectedTopics.length > 0
+          ? detectedTopics
+          : [
+              prompt(
+                "Add at least one topic for your article (e.g., Programming, Technology):",
+                "Technology"
+              ),
+            ];
 
-      // Create the article object
-      const articleData = {
-        id: editingArticleId || Date.now(),
+      const newArticle = {
+        id: Date.now(),
         title,
-        blocks: simplifiedBlocks,
-        excerpt:
-          plainText.substring(0, 150) + (plainText.length > 150 ? "..." : ""),
-        author: user?.firstName || user?.username || "Anonymous",
-        date: new Date().toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }),
+        content: blocks.map((b) => b.content).join("\n\n"),
+        excerpt: blocks[0].content.substring(0, 150) + "...",
         readTime: `${Math.max(
           1,
-          Math.ceil(plainText.split(" ").length / 200)
+          Math.ceil(
+            blocks.reduce((acc, block) => acc + block.content.length, 0) / 1000
+          )
         )} min read`,
-        hasImage: firstImage !== null,
+        author: {
+          firstName: user?.firstName || "",
+          lastName: user?.lastName || "",
+        },
+        createdAt: new Date().toISOString(),
+        claps: 0,
+        topics: finalTopics, // Add topics to the article
+        image: "https://picsum.photos/seed/" + Date.now() + "/400/268",
       };
 
       // Get existing articles
-      let existingArticles = [];
-      try {
-        existingArticles = JSON.parse(
-          localStorage.getItem("medium-published-articles") || "[]"
-        );
-      } catch (err) {
-        console.error("Error parsing existing articles:", err);
-        existingArticles = [];
-      }
+      const savedArticles = JSON.parse(
+        localStorage.getItem("medium-published-articles") || "[]"
+      );
 
-      if (editingArticleId) {
-        // Update existing article
-        const articleIndex = existingArticles.findIndex(
-          (article) => article.id === editingArticleId
-        );
+      // Add new article to the beginning
+      savedArticles.unshift(newArticle);
 
-        if (articleIndex !== -1) {
-          // Preserve the isPinned status if it exists
-          if (existingArticles[articleIndex].isPinned) {
-            articleData.isPinned = true;
-          }
+      // Save back to localStorage
+      localStorage.setItem(
+        "medium-published-articles",
+        JSON.stringify(savedArticles)
+      );
 
-          existingArticles[articleIndex] = articleData;
-        } else {
-          existingArticles.unshift(articleData);
-        }
-      } else {
-        // Add new article
-        existingArticles.unshift(articleData);
-      }
+      // Broadcast new article via custom event (simulating WebSocket)
+      window.dispatchEvent(
+        new CustomEvent("new-article-published", {
+          detail: { article: newArticle },
+        })
+      );
 
-      // Limit the number of stored articles to prevent quota issues
-      const MAX_ARTICLES = 10;
-      if (existingArticles.length > MAX_ARTICLES) {
-        existingArticles = existingArticles.slice(0, MAX_ARTICLES);
-      }
-
-      try {
-        // Try to save to localStorage, with fallback
-        localStorage.setItem(
-          "medium-published-articles",
-          JSON.stringify(existingArticles)
-        );
-      } catch (storageError) {
-        console.error("Storage error:", storageError);
-
-        // If error is quota exceeded, try with even fewer articles
-        if (
-          storageError.name === "QuotaExceededError" ||
-          storageError.code === 22 ||
-          storageError.code === 1014
-        ) {
-          // More aggressive reduction - keep only newest article with minimal data
-          const minimalArticle = {
-            ...articleData,
-            blocks: articleData.blocks.map((block) => {
-              if (block.type === "image") {
-                return { ...block, content: null, thumbnailContent: null };
-              }
-              return block;
-            }),
-          };
-
-          try {
-            localStorage.setItem(
-              "medium-published-articles",
-              JSON.stringify([minimalArticle])
-            );
-            alert(
-              "Your article was published but with reduced images due to storage limitations."
-            );
-          } catch (finalError) {
-            throw new Error(
-              "Could not save your article due to browser storage limitations."
-            );
-          }
-        } else {
-          throw storageError;
-        }
-      }
-
-      // Clear the draft
-      localStorage.removeItem("medium-draft");
-
-      // Redirect to profile after short delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      router.push("/profile");
+      router.push(`/article/${newArticle.id}`);
     } catch (error) {
-      console.error("Error publishing:", error);
-      alert("Failed to publish your story: " + error.message);
+      console.error("Error publishing article:", error);
+      alert("Failed to publish your article. Please try again.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Helper function to reduce image size for thumbnails
-  const reduceThumbnailSize = (imageData) => {
-    if (!imageData) return null;
+  // Helper function to detect topics from content
+  const detectTopicsFromContent = (content) => {
+    const commonTopics = [
+      "Programming",
+      "JavaScript",
+      "React",
+      "Next.js",
+      "Web Development",
+      "Technology",
+      "AI",
+      "Machine Learning",
+      "Data Science",
+      "Productivity",
+      "Self Improvement",
+      "Writing",
+    ];
 
-    return new Promise((resolve) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = 200; // Small thumbnail width
-        canvas.height = (img.height / img.width) * 200;
+    const topics = [];
 
-        const ctx = canvas.getContext("2d");
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    // Look for hashtags
+    const hashtags = content.match(/#(\w+)/g);
+    if (hashtags) {
+      hashtags.forEach((tag) => {
+        topics.push(tag.substring(1)); // Remove the # symbol
+      });
+    }
 
-        // Very low quality for thumbnails
-        resolve(canvas.toDataURL("image/jpeg", 0.5));
-      };
-      img.src = imageData;
+    // Check for common topics in content
+    commonTopics.forEach((topic) => {
+      if (
+        content.toLowerCase().includes(topic.toLowerCase()) &&
+        !topics.includes(topic)
+      ) {
+        topics.push(topic);
+      }
     });
+
+    // Limit to 3 topics max
+    return topics.slice(0, 3);
   };
 
   if (!isLoaded || !isSignedIn) {
@@ -560,7 +509,7 @@ export default function WritePage() {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={handlePublish}
+              onClick={publishArticle}
               disabled={
                 isSaving || !title || !blocks.some((block) => block.content)
               }
