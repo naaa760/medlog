@@ -13,24 +13,38 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (user) {
-      // This would be an API call in a real app
-      setArticles([
-        {
-          id: 1,
-          title: "My Journey with JavaScript",
-          excerpt: "Personal experiences learning and mastering JavaScript.",
-          date: "Oct 15, 2023",
-          readTime: "6 min read",
-        },
-        {
-          id: 2,
-          title: "React vs Vue: My Perspective",
-          excerpt:
-            "Comparing two popular frontend frameworks from a developer's point of view.",
-          date: "Sep 28, 2023",
-          readTime: "8 min read",
-        },
-      ]);
+      // Load published articles from localStorage
+      try {
+        const savedArticles = localStorage.getItem("medium-published-articles");
+        if (savedArticles) {
+          setArticles(JSON.parse(savedArticles));
+        } else {
+          // Fallback default articles
+          setArticles([
+            {
+              id: 1,
+              title: "My Journey with JavaScript",
+              excerpt:
+                "Personal experiences learning and mastering JavaScript.",
+              date: "Oct 15, 2023",
+              readTime: "6 min read",
+            },
+            {
+              id: 2,
+              title: "React vs Vue: My Perspective",
+              excerpt:
+                "Comparing two popular frontend frameworks from a developer's point of view.",
+              date: "Sep 28, 2023",
+              readTime: "8 min read",
+            },
+          ]);
+        }
+      } catch (error) {
+        console.error("Error loading articles:", error);
+        // Fallback to empty array
+        setArticles([]);
+      }
+
       setLoading(false);
     }
   }, [user]);
