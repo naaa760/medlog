@@ -89,7 +89,7 @@ export default function Navbar() {
               <input
                 type="text"
                 placeholder="Search Medium"
-                className="bg-transparent outline-none text-sm w-56"
+                className="bg-transparent outline-none text-sm w-56 text-black"
                 value={searchQuery}
                 onChange={handleSearch}
                 onClick={(e) => e.stopPropagation()}

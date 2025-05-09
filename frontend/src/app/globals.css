@@ -24,3 +24,58 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* Add these styles to ensure no unwanted borders on profile page */
+.profile-tab-container {
+  border-top: none !important;
+}
+
+.profile-tabs {
+  border-bottom: none !important;
+}
+
+.profile-tab-button {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+}
+
+/* Add these additional styles for a more beautiful profile page */
+.article-card {
+  transition: transform 0.2s ease-in-out;
+}
+
+.article-card:hover {
+  transform: translateY(-2px);
+}
+
+/* Smooth scrolling for the page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Beautiful focus styles */
+button:focus,
+a:focus,
+input:focus {
+  outline: 2px solid rgba(0, 0, 0, 0.1);
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar for a more polished look */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
