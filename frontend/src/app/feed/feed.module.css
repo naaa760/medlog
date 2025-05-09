@@ -1,0 +1,166 @@
+.feedContainer {
+  min-height: 100vh;
+}
+
+.header {
+  border-bottom: 1px solid rgba(230, 230, 230, 1);
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 100;
+}
+
+.headerContent {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+}
+
+.logo img {
+  height: 25px;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.writeLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(117, 117, 117, 1);
+  font-size: 14px;
+}
+
+.writeLink:hover {
+  color: rgba(41, 41, 41, 1);
+}
+
+.main {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 20px 24px;
+}
+
+.feedContent {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.articlesSection {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+.articleCard {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 32px;
+  border-bottom: 1px solid rgba(230, 230, 230, 1);
+}
+
+.articleContent {
+  flex: 1;
+  padding-right: 20px;
+}
+
+.articleAuthor {
+  font-size: 13px;
+  color: rgba(41, 41, 41, 1);
+  margin-bottom: 8px;
+}
+
+.articleTitle {
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: rgba(41, 41, 41, 1);
+  line-height: 28px;
+}
+
+.articleExcerpt {
+  font-size: 16px;
+  color: rgba(117, 117, 117, 1);
+  line-height: 24px;
+  margin-bottom: 12px;
+}
+
+.articleMeta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 13px;
+  color: rgba(117, 117, 117, 1);
+}
+
+.articleImage {
+  width: 112px;
+  height: 112px;
+}
+
+.articleImage img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 4px;
+}
+
+.sidebar {
+  position: relative;
+}
+
+.sidebarSticky {
+  position: sticky;
+  top: 80px;
+}
+
+.sidebarSticky h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: rgba(41, 41, 41, 1);
+}
+
+.topicTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 32px;
+}
+
+.topicTags span {
+  font-size: 14px;
+  color: rgba(117, 117, 117, 1);
+  padding: 6px 16px;
+  background-color: rgba(242, 242, 242, 1);
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+.topicTags span:hover {
+  background-color: rgba(230, 230, 230, 1);
+}
+
+.sidebarLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.sidebarLinks a {
+  font-size: 14px;
+  color: rgba(117, 117, 117, 1);
+}
+
+.loading {
+  padding: 40px 0;
+  text-align: center;
+  color: rgba(117, 117, 117, 1);
+}

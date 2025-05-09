@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Medium Clone",
-  description: "A Medium clone built with Next.js and Tailwind CSS",
+  description: "A platform for reading and writing stories",
 };
 
 export default function RootLayout({ children }) {

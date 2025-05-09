@@ -1,0 +1,32 @@
+.authContainer {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: #fff;
+}
+
+.authHeader {
+  display: flex;
+  justify-content: center;
+  padding: 50px 0 20px;
+}
+
+.logo {
+  height: 25px;
+}
+
+.authContent {
+  display: flex;
+  justify-content: center;
+  flex-grow: 1;
+  padding: 0 20px;
+}
+
+.primaryButton {
+  background-color: #1a8917 !important;
+  color: white !important;
+}
+
+.footerAction {
+  color: #1a8917 !important;
+}

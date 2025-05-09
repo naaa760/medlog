@@ -2,86 +2,25 @@
 
 :root {
   --background: #ffffff;
-  --foreground: #000000;
+  --foreground: #171717;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
-/* Set serif font to Merriweather which is closer to Medium's font */
-.font-serif {
-  font-family: "Merriweather", serif;
-}
-
-/* Override specific UI elements that need to maintain their colors */
-.bg-\[\#FFC017\] {
-  background-color: #ffc017 !important;
-}
-
-/* Main gradient text for heading */
-.main-gradient {
-  background: linear-gradient(90deg, #1a1a1a, #4a4a4a);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-  display: inline-block;
-  font-weight: 500;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
-}
-
-/* Animation for dropdowns and other elements */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(5px);
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
   }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fadeIn {
-  animation: fadeIn 0.2s ease-out forwards;
-}
-
-/* Subtle editor styling */
-textarea:focus::placeholder,
-input:focus::placeholder {
-  color: #e0e0e0;
-  transition: color 0.2s ease;
-}
-
-/* Subtle hover effects for links */
-a {
-  transition: color 0.2s ease;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: "Source Serif Pro", "Charter", "Georgia", serif;
-  background-color: #ffffff;
-  min-height: 100vh;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  font-family: "GT Super", "Source Serif Pro", Georgia, serif;
-  color: #000000;
-}
-
-/* Keep background white in dark mode too */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #ffffff;
-    --foreground: #000000;
-  }
+  font-family: Arial, Helvetica, sans-serif;
 }

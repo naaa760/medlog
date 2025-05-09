@@ -1,0 +1,104 @@
+.main {
+  position: relative;
+  min-height: 100vh;
+}
+
+.heroSection {
+  padding: 85px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #ffc017;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.logoContainer {
+  margin-bottom: 30px;
+}
+
+.logo {
+  height: 25px;
+}
+
+.heroTitle {
+  font-size: 106px;
+  letter-spacing: -0.05em;
+  line-height: 95px;
+  color: rgba(8, 8, 8, 1);
+  font-weight: 400;
+  font-family: gt-super, Georgia, serif;
+  margin-bottom: 35px;
+}
+
+.heroSubtitle {
+  font-size: 24px;
+  line-height: 24px;
+  color: rgba(41, 41, 41, 1);
+  max-width: 600px;
+  font-weight: 400;
+  margin-bottom: 50px;
+}
+
+.ctaButton {
+  display: inline-block;
+  background-color: rgba(25, 25, 25, 1);
+  color: white;
+  padding: 8px 20px;
+  border-radius: 99em;
+  font-size: 20px;
+  font-weight: 400;
+  text-decoration: none;
+  line-height: 24px;
+  transition: background-color 0.2s;
+}
+
+.ctaButton:hover {
+  background-color: rgba(25, 25, 25, 0.8);
+}
+
+.navbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 25px 0;
+  background-color: #ffc017;
+  border-bottom: 1px solid rgba(41, 41, 41, 1);
+}
+
+.navbar .container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.navLogo img {
+  height: 25px;
+}
+
+.navLinks {
+  display: flex;
+  gap: 25px;
+  align-items: center;
+}
+
+.navLinks a {
+  color: rgba(41, 41, 41, 1);
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.getStartedBtn {
+  background-color: rgba(25, 25, 25, 1);
+  color: white !important;
+  padding: 8px 16px;
+  border-radius: 99em;
+  font-size: 14px;
+}
+
+.getStartedBtn:hover {
+  background-color: rgba(25, 25, 25, 0.8);
+}

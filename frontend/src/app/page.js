@@ -6,6 +6,16 @@ import { useUser, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+// Gradient styles
+const gradientTextStyle = {
+  background:
+    "linear-gradient(to right, rgba(0, 0, 0, 1), rgba(169, 169, 169, 0.8))",
+  WebkitBackgroundClip: "text",
+  backgroundClip: "text",
+  color: "transparent",
+  display: "inline-block",
+};
+
 export default function Home() {
   const { isSignedIn, isLoaded } = useUser();
   const router = useRouter();
@@ -28,7 +38,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <div className="bg-[#ebe7b9] border-b border-black flex-auto">
+      <div className="bg-[#d8c798] border-b border-black flex-auto">
         {/* Navigation */}
         <nav className="border-b border-black py-2.5">
           <div className="max-w-[1192px] w-full mx-auto px-6 flex justify-between items-center">
@@ -77,7 +87,10 @@ export default function Home() {
         <div className="max-w-[1192px] w-full mx-auto px-6 py-16 md:py-24 relative">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
             <div className="flex flex-col justify-center md:col-span-7">
-              <h1 className="font-normal main-gradient text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-serif mb-8">
+              <h1
+                className="font-normal text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-serif mb-8"
+                style={gradientTextStyle}
+              >
                 Human stories & ideas
               </h1>
               <p className="text-xl text-gray-800 mb-8">
