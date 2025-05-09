@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useUser } from "@clerk/nextjs";
+import Image from "next/image";
+import { useUser, SignInButton, SignUpButton } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
@@ -11,112 +12,138 @@ export default function Home() {
   const [shouldRedirect, setShouldRedirect] = useState(true);
 
   useEffect(() => {
-    // Check if this is a direct navigation to the home page
-    // or a navigation from another page within the app
-    const fromApp = document.referrer.includes(window.location.host);
-
-    // Only redirect if it's a first visit/direct navigation
-    // and not when user explicitly clicks to view the homepage
-    if (isLoaded && isSignedIn && !fromApp && shouldRedirect) {
+    if (isLoaded && isSignedIn && shouldRedirect) {
       router.push("/feed");
     }
-
-    // After the first check, disable future redirects
-    // This allows users to explicitly navigate to the home page
     setShouldRedirect(false);
   }, [isLoaded, isSignedIn, router, shouldRedirect]);
 
-  // If we're still checking auth status, show a minimal loading state
   if (!isLoaded) {
     return (
       <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-gray-900"></div>
       </div>
     );
   }
 
   return (
-    <div className="relative bg-yellow-400">
-      {/* Hero Section */}
-      <section className="border-b border-black">
-        <div className="max-w-7xl mx-auto py-24 px-6 md:px-10">
-          <div className="flex flex-col gap-8 max-w-2xl">
-            <h1 className="text-7xl md:text-8xl font-serif font-bold">
-              Stay curious.
-            </h1>
-            <p className="text-2xl text-gray-800 font-medium">
-              Discover stories, thinking, and expertise from writers on any
-              topic.
-            </p>
+    <div className="min-h-screen flex flex-col">
+      <div className="bg-[#ebe7b9] border-b border-black flex-auto">
+        {/* Navigation */}
+        <nav className="border-b border-black py-2.5">
+          <div className="max-w-[1192px] w-full mx-auto px-6 flex justify-between items-center">
             <div>
-              <Link
-                href="/sign-up"
-                className="bg-black text-white px-12 py-3 rounded-full text-xl font-medium inline-block"
-              >
-                Start reading
+              <Link href="/" className="font-serif text-xl font-bold">
+                Medium
               </Link>
+            </div>
+            <div className="flex items-center gap-6">
+              <Link href="/our-story" className="text-sm text-gray-800">
+                Our story
+              </Link>
+              <Link href="/membership" className="text-sm text-gray-800">
+                Membership
+              </Link>
+              <Link href="/write" className="text-sm text-gray-800">
+                Write
+              </Link>
+
+              {!isSignedIn ? (
+                <>
+                  <SignInButton mode="modal">
+                    <button className="text-sm text-gray-800 cursor-pointer">
+                      Sign In
+                    </button>
+                  </SignInButton>
+                  <SignUpButton mode="modal">
+                    <button className="bg-black text-white rounded-full px-4 py-2 text-sm font-medium cursor-pointer">
+                      Get started
+                    </button>
+                  </SignUpButton>
+                </>
+              ) : (
+                <Link
+                  href="/feed"
+                  className="bg-black text-white rounded-full px-4 py-2 text-sm font-medium"
+                >
+                  Go to feed
+                </Link>
+              )}
+            </div>
+          </div>
+        </nav>
+
+        {/* Hero section */}
+        <div className="max-w-[1192px] w-full mx-auto px-6 py-16 md:py-24 relative">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+            <div className="flex flex-col justify-center md:col-span-7">
+              <h1 className="font-normal main-gradient text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-serif mb-8">
+                Human stories & ideas
+              </h1>
+              <p className="text-xl text-gray-800 mb-8">
+                A place to read, write, and deepen your understanding
+              </p>
+              <div>
+                <SignUpButton mode="modal">
+                  <button className="bg-black hover:bg-gray-900 text-white px-8 py-2 rounded-full text-base font-medium cursor-pointer">
+                    Start reading
+                  </button>
+                </SignUpButton>
+              </div>
+            </div>
+
+            <div className="hidden md:block md:col-span-5 relative">
+              <div className="absolute right-0 top-[-80px]">
+                <Image
+                  src="/bg.png"
+                  alt="Medium illustration"
+                  width={450}
+                  height={400}
+                  priority
+                  className="object-contain"
+                />
+              </div>
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Trending Section */}
-      <section className="max-w-7xl mx-auto py-10 px-6 md:px-10">
-        <div className="flex items-center gap-3 mb-6">
-          <svg
-            width="28"
-            height="29"
-            viewBox="0 0 28 29"
-            fill="none"
-            className="w-6 h-6"
-          >
-            <path fill="#fff" d="M0 .8h28v28H0z"></path>
-            <g clipPath="url(#trending_svg__clip0_1049_11)">
-              <path fill="#fff" d="M4 4.8h20v20H4z"></path>
-              <circle cx="14" cy="14.8" r="9.5" stroke="#000"></circle>
-              <path
-                d="M5.46 18.36l4.47-4.48M9.97 13.87l3.67 3.66M13.67 17.53l5.1-5.09M16.62 11.6h3M19.62 11.6v3"
-                stroke="#000"
-                strokeWidth="1.5"
-              ></path>
-            </g>
-            <defs>
-              <clipPath id="trending_svg__clip0_1049_11">
-                <path
-                  fill="#fff"
-                  transform="translate(4 4.8)"
-                  d="M0 0h20v20H0z"
-                ></path>
-              </clipPath>
-            </defs>
-          </svg>
-          <span className="font-medium text-sm">Trending on Medium</span>
+      <footer className="py-4 bg-white border-t border-gray-200 mt-auto">
+        <div className="max-w-[1192px] w-full mx-auto px-6">
+          <div className="flex flex-wrap justify-center text-xs text-gray-500 gap-4">
+            <Link href="#" className="hover:text-gray-700">
+              Help
+            </Link>
+            <Link href="#" className="hover:text-gray-700">
+              Status
+            </Link>
+            <Link href="#" className="hover:text-gray-700">
+              About
+            </Link>
+            <Link href="#" className="hover:text-gray-700">
+              Careers
+            </Link>
+            <Link href="#" className="hover:text-gray-700">
+              Press
+            </Link>
+            <Link href="#" className="hover:text-gray-700">
+              Blog
+            </Link>
+            <Link href="#" className="hover:text-gray-700">
+              Privacy
+            </Link>
+            <Link href="#" className="hover:text-gray-700">
+              Rules
+            </Link>
+            <Link href="#" className="hover:text-gray-700">
+              Terms
+            </Link>
+            <Link href="#" className="hover:text-gray-700">
+              Text to speech
+            </Link>
+          </div>
         </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* Placeholder for trending articles - we'll replace with real data later */}
-          {[1, 2, 3, 4, 5, 6].map((item) => (
-            <div key={item} className="flex gap-3">
-              <div className="text-3xl font-bold text-gray-200">0{item}</div>
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <div className="w-5 h-5 rounded-full bg-gray-200"></div>
-                  <span className="text-sm font-medium">Author Name</span>
-                </div>
-                <h3 className="font-bold text-base mb-2 line-clamp-2">
-                  This is a sample trending article title that might be quite
-                  long
-                </h3>
-                <div className="flex items-center text-sm text-gray-500">
-                  <span>Dec 15</span>
-                  <span className="mx-1">·</span>
-                  <span>5 min read</span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
+      </footer>
     </div>
   );
 }

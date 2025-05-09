@@ -2,12 +2,16 @@
 
 import Link from "next/link";
 import { useUser, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import SearchBar from "./SearchBar";
 
 export default function Navbar() {
   const { isSignedIn, isLoaded, user } = useUser();
   const router = useRouter();
+  const pathname = usePathname();
+
+  // Check if we're on the homepage
+  const isHomePage = pathname === "/";
 
   // Only show navigation items when auth state is loaded
   const handleHomeClick = (e) => {
@@ -31,49 +35,46 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="border-b border-gray-200 py-4 px-6 md:px-10">
-      <div className="max-w-7xl mx-auto flex justify-between items-center">
+    <nav
+      className={`py-2 px-4 md:px-8 border-b ${
+        isHomePage ? "bg-[#ffead0] border-black" : "border-gray-200"
+      }`}
+    >
+      <div className="max-w-6xl mx-auto flex justify-between items-center">
         {/* Logo/Brand */}
         <div>
-          <Link
-            href="/"
-            className="font-serif text-2xl font-bold"
-            // If you want logged-in users to always go to feed when clicking logo
-            // onClick={handleLogoClick}
-          >
+          <Link href="/" className="font-serif text-lg font-bold">
             Medium
           </Link>
         </div>
 
         {/* Navigation Links */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4">
           {!isSignedIn ? (
             <>
               <Link
                 href="/our-story"
-                className="hidden md:inline-block text-sm text-gray-700 hover:text-gray-900"
+                className="hidden md:inline-block text-sm hover:text-gray-900"
               >
                 Our story
               </Link>
               <Link
                 href="/membership"
-                className="hidden md:inline-block text-sm text-gray-700 hover:text-gray-900"
+                className="hidden md:inline-block text-sm hover:text-gray-900"
               >
                 Membership
               </Link>
               <Link
                 href="/write"
-                className="hidden md:inline-block text-sm text-gray-700 hover:text-gray-900"
+                className="hidden md:inline-block text-sm hover:text-gray-900"
               >
                 Write
               </Link>
               <SignInButton mode="modal">
-                <button className="text-sm text-gray-700 hover:text-gray-900">
-                  Sign In
-                </button>
+                <button className="text-sm hover:text-gray-900">Sign in</button>
               </SignInButton>
               <SignUpButton mode="modal">
-                <button className="bg-black text-white rounded-full px-4 py-2 text-sm">
+                <button className="bg-black text-white rounded-full px-3 py-1.5 text-sm hover:bg-gray-900">
                   Get started
                 </button>
               </SignUpButton>
@@ -82,8 +83,7 @@ export default function Navbar() {
             <>
               <Link
                 href="/feed"
-                onClick={handleHomeClick}
-                className="hidden md:inline-block text-sm text-gray-700 hover:text-gray-900"
+                className="hidden md:inline-block text-sm hover:text-gray-900"
               >
                 Home
               </Link>
@@ -92,7 +92,7 @@ export default function Navbar() {
               </div>
               <Link
                 href="/write"
-                className="hidden md:flex items-center gap-1 text-sm text-gray-700 hover:text-gray-900"
+                className="hidden md:flex items-center gap-1 text-sm hover:text-gray-900"
               >
                 <svg
                   width="24"
@@ -114,7 +114,7 @@ export default function Navbar() {
               </Link>
               <Link
                 href="/notifications"
-                className="text-sm text-gray-700 hover:text-gray-900"
+                className="text-sm hover:text-gray-900"
               >
                 <svg
                   width="24"
@@ -135,10 +135,7 @@ export default function Navbar() {
                   ></path>
                 </svg>
               </Link>
-              <Link
-                href="/bookmarks"
-                className="text-sm text-gray-700 hover:text-gray-900"
-              >
+              <Link href="/bookmarks" className="text-sm hover:text-gray-900">
                 <svg
                   width="24"
                   height="24"
