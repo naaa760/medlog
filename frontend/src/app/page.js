@@ -44,12 +44,12 @@ export default function Home() {
           <div className="max-w-[1192px] w-full mx-auto px-6 flex justify-between items-center">
             <div>
               <Link href="/" className="font-serif text-xl font-bold">
-                Medium
+                Medlog
               </Link>
             </div>
             <div className="flex items-center gap-6">
               <Link href="/our-story" className="text-sm text-gray-800">
-                Our story
+                Our stories
               </Link>
               <Link href="/membership" className="text-sm text-gray-800">
                 Membership
@@ -91,7 +91,7 @@ export default function Home() {
                 className="font-normal text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-serif mb-8"
                 style={gradientTextStyle}
               >
-                Human stories & ideas
+                Human stories & differentideas
               </h1>
               <p className="text-xl text-gray-800 mb-8">
                 A place to read, write, and deepen your understanding

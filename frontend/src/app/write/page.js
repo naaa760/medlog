@@ -592,8 +592,8 @@ export default function WritePage() {
       <header className="border-b border-gray-200 sticky top-0 bg-white z-10">
         <div className="max-w-[1192px] w-full mx-auto px-4 py-3 flex justify-between items-center">
           <div className="flex items-center">
-            <Link href="/" className="font-serif text-lg md:text-xl font-bold">
-              Medium
+            <Link href="/" className="flex items-center">
+              <img src="/fl.png" alt="Medium" className="h-8 w-auto mr-2" />
             </Link>
             {isDraft && (
               <div className="ml-4 text-sm text-gray-500">

@@ -233,14 +233,11 @@ export default function Feed() {
       <header className={styles.header}>
         <div className={styles.headerContent}>
           <div className={styles.headerLeft}>
-            <Link href="/" className={styles.logo}>
-              <svg viewBox="0 0 3940 610" className={styles.logoImg}>
-                <path
-                  d="M594.79 308.2c0 163.76-131.85 296.52-294.5 296.52S5.8 472 5.8 308.2 137.65 11.69 300.29 11.69s294.5 132.75 294.5 296.51M917.86 308.2c0 154.16-65.93 279.12-147.25 279.12s-147.25-125-147.25-279.12S689.29 29.08 770.61 29.08s147.25 125 147.25 279.12M1050 308.2c0 138.12-23.19 250.08-51.79 250.08s-51.79-112-51.79-250.08 23.19-250.08 51.8-250.08S1050 170.09 1050 308.2M1862.77 37.4l.82-.18v-6.35h-167.48l-155.51 365.5-155.51-365.5h-180.48v6.35l.81.18c30.57 6.9 46.09 17.19 46.09 54.3v434.45c0 37.11-15.58 47.4-46.15 54.3l-.81.18V587h161.6V586.82l-.81-.18c-30.57-6.9-46.09-17.19-46.09-54.3V155.31l-.05-.13.05-.12 156.84 368.93h1.66l156.84-368.93-.05-.12.05-.13v431.64c0 37.11-15.58 47.4-46.15 54.3l-.81.18V587h161.6V586.82l-.81-.18c-30.57-6.9-46.09-17.19-46.09-54.3V91.7c0-37.11 15.52-47.4 46.09-54.3"
-                  fill="#000"
-                />
-              </svg>
-            </Link>
+            <div className={styles.logo}>
+              <Link href="/">
+                <img src="/fl.png" alt="Medium" className={styles.logoImg} />
+              </Link>
+            </div>
 
             <div className={styles.searchContainer}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -572,7 +569,7 @@ export default function Feed() {
                 <Link href="#">Terms</Link>
                 <Link href="#">About</Link>
                 <Link href="#">Text to speech</Link>
-                <p className={styles.copyright}>© 2023 Medium Clone</p>
+                <p className={styles.copyright}>© 2025 Medlog</p>
               </div>
             </div>
           </aside>

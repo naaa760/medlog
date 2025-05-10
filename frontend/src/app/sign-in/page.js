@@ -6,13 +6,11 @@ export default function SignInPage() {
   return (
     <div className={styles.authContainer}>
       <div className={styles.authHeader}>
-        <Link href="/">
-          <img
-            src="/medium-logo.png"
-            alt="Medium Logo"
-            className={styles.logo}
-          />
-        </Link>
+        <div className="auth-logo">
+          <Link href="/">
+            <img src="/fl.png" alt="Medium" className="h-12 w-auto mb-8" />
+          </Link>
+        </div>
       </div>
       <div className={styles.authContent}>
         <SignIn
