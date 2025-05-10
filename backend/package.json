@@ -1,11 +1,12 @@
 {
-  "name": "medium-clone-backend",
+  "name": "medlog-backend",
   "version": "1.0.0",
-  "description": "Backend API for Medium clone",
-  "main": "server.js",
+  "description": "Backend API for Medlog application",
+  "main": "src/index.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
@@ -22,5 +23,8 @@
   },
   "devDependencies": {
     "nodemon": "^2.0.22"
+  },
+  "engines": {
+    "node": ">=14.0.0"
   }
 }

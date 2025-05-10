@@ -1,14 +1,15 @@
 import api from "./api";
 
+// Use the environment variable for API calls
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 // Get all articles
 export const fetchArticles = async (page = 1) => {
-  try {
-    const response = await api.get(`/articles?page=${page}`);
-    return response.data;
-  } catch (error) {
-    console.error("Error fetching articles:", error);
-    throw error;
+  const response = await fetch(`${API_URL}/api/articles?page=${page}`);
+  if (!response.ok) {
+    throw new Error("Failed to fetch articles");
   }
+  return response.json();
 };
 
 // Get article by ID
