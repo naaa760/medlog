@@ -234,26 +234,31 @@ export default function Feed() {
         <div className={styles.headerContent}>
           <div className={styles.headerLeft}>
             <Link href="/" className={styles.logo}>
-              <img
-                src="/medium-logo.png"
-                alt="Medium Logo"
-                className={styles.logoImg}
-              />
+              <svg viewBox="0 0 3940 610" className={styles.logoImg}>
+                <path
+                  d="M594.79 308.2c0 163.76-131.85 296.52-294.5 296.52S5.8 472 5.8 308.2 137.65 11.69 300.29 11.69s294.5 132.75 294.5 296.51M917.86 308.2c0 154.16-65.93 279.12-147.25 279.12s-147.25-125-147.25-279.12S689.29 29.08 770.61 29.08s147.25 125 147.25 279.12M1050 308.2c0 138.12-23.19 250.08-51.79 250.08s-51.79-112-51.79-250.08 23.19-250.08 51.8-250.08S1050 170.09 1050 308.2M1862.77 37.4l.82-.18v-6.35h-167.48l-155.51 365.5-155.51-365.5h-180.48v6.35l.81.18c30.57 6.9 46.09 17.19 46.09 54.3v434.45c0 37.11-15.58 47.4-46.15 54.3l-.81.18V587h161.6V586.82l-.81-.18c-30.57-6.9-46.09-17.19-46.09-54.3V155.31l-.05-.13.05-.12 156.84 368.93h1.66l156.84-368.93-.05-.12.05-.13v431.64c0 37.11-15.58 47.4-46.15 54.3l-.81.18V587h161.6V586.82l-.81-.18c-30.57-6.9-46.09-17.19-46.09-54.3V91.7c0-37.11 15.52-47.4 46.09-54.3"
+                  fill="#000"
+                />
+              </svg>
             </Link>
+
             <div className={styles.searchContainer}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
-                  d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
-                  fill="currentColor"
+                  fillRule="evenodd"
+                  clipRule="evenodd"
+                  d="M4.1 11.06a6.95 6.95 0 1 1 13.9 0 6.95 6.95 0 0 1-13.9 0zm6.94-8.05a8.05 8.05 0 1 0 5.13 14.26l3.75 3.75a.56.56 0 1 0 .8-.79l-3.74-3.73A8.05 8.05 0 0 0 11.04 3v.01z"
+                  fill="rgba(117, 117, 117, 1)"
                 ></path>
               </svg>
               <input
                 type="text"
-                placeholder="Search"
+                placeholder="Search Medium"
                 className={styles.searchInput}
               />
             </div>
           </div>
+
           <div className={styles.headerRight}>
             <Link href="/write" className={styles.writeLink}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -266,8 +271,9 @@ export default function Feed() {
                   stroke="currentColor"
                 ></path>
               </svg>
-              <span>Write</span>
+              Write
             </Link>
+
             <button className={styles.notificationBtn}>
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                 <path
@@ -276,15 +282,21 @@ export default function Feed() {
                   strokeLinecap="round"
                 ></path>
                 <path
-                  d="M5.5 10.53V9a6.5 6.5 0 0 1 13 0v1.53c0 1.42.28 2.83.82 4.14l.9 2.33a1 1 0 0 1-.9 1.4h-13.6C4.97 18.4 4.42 17.73 4.67 17l.9-2.33a10.46 10.46 0 0 0 .82-4.14z"
+                  d="M5.5 10.53V9a6.5 6.5 0 0 1 13 0v1.53c0 1.42.56 2.78 1.57 3.79l.03.03c.26.26.4.6.4.97v2.93c0 .14-.11.25-.25.25H3.75a.25.25 0 0 1-.25-.25v-2.93c0-.37.14-.71.4-.97l.03-.03c1-1 1.57-2.37 1.57-3.79z"
                   stroke="currentColor"
-                  strokeLinecap="round"
                 ></path>
               </svg>
             </button>
-            <div className={styles.profileContainer}>
-              <UserButton afterSignOutUrl="/" />
-            </div>
+
+            {user ? (
+              <div className={styles.profileContainer}>
+                <UserButton />
+              </div>
+            ) : (
+              <Link href="/sign-in" className={styles.signInBtn}>
+                Sign in
+              </Link>
+            )}
           </div>
         </div>
       </header>

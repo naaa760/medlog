@@ -9,6 +9,7 @@
   top: 0;
   background-color: #fff;
   z-index: 100;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .headerContent {
@@ -18,7 +19,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0 24px;
-  height: 56px;
+  height: 65px;
 }
 
 .headerLeft {
@@ -33,7 +34,12 @@
 }
 
 .logoImg {
-  height: 25px;
+  height: 28px;
+  transition: transform 0.2s;
+}
+
+.logoImg:hover {
+  transform: scale(1.05);
 }
 
 .searchContainer {
@@ -41,8 +47,14 @@
   align-items: center;
   background-color: rgba(242, 242, 242, 1);
   border-radius: 20px;
-  padding: 8px 12px;
+  padding: 8px 16px;
   width: 240px;
+  transition: all 0.2s;
+}
+
+.searchContainer:focus-within {
+  background-color: #fff;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1), 0 2px 6px rgba(0, 0, 0, 0.05);
 }
 
 .searchInput {
@@ -52,6 +64,11 @@
   width: 100%;
   margin-left: 8px;
   font-size: 14px;
+  color: rgba(41, 41, 41, 1);
+}
+
+.searchInput::placeholder {
+  color: rgba(117, 117, 117, 1);
 }
 
 .headerRight {
@@ -67,6 +84,11 @@
   color: rgba(41, 41, 41, 1);
   text-decoration: none;
   font-size: 14px;
+  transition: color 0.2s;
+}
+
+.writeLink:hover {
+  color: rgba(0, 0, 0, 0.8);
 }
 
 .notificationBtn {
@@ -76,7 +98,13 @@
   display: flex;
   align-items: center;
   color: rgba(41, 41, 41, 1);
-  padding: 4px;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.2s;
+}
+
+.notificationBtn:hover {
+  background-color: rgba(242, 242, 242, 1);
 }
 
 .profileContainer {
@@ -98,6 +126,7 @@
   overflow-x: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  border-bottom: 1px solid rgba(242, 242, 242, 1);
 }
 
 .topicNavContent::-webkit-scrollbar {
@@ -115,6 +144,11 @@
   position: relative;
   display: flex;
   align-items: center;
+  transition: color 0.2s;
+}
+
+.topicTab:hover {
+  color: rgba(41, 41, 41, 1);
 }
 
 .activeTab {
