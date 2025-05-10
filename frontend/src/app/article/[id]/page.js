@@ -23,6 +23,7 @@ function ArticleContent({ articleId }) {
   const [commentText, setCommentText] = useState("");
   const [readingProgress, setReadingProgress] = useState(0);
   const articleRef = useRef(null);
+  const [hasClapped, setHasClapped] = useState(false);
 
   // Track reading progress
   useEffect(() => {
@@ -62,6 +63,19 @@ function ArticleContent({ articleId }) {
 
       if (foundArticle) {
         setArticle(foundArticle);
+
+        // Check if the current user has already clapped for this article
+        const clappedArticles = JSON.parse(
+          localStorage.getItem("medium-clapped-articles") || "[]"
+        );
+
+        // If user is logged in, check against their ID, otherwise use a fallback
+        const userId = user?.id || "anonymous";
+        const hasUserClapped = clappedArticles.some(
+          (item) => item.articleId === articleId && item.userId === userId
+        );
+
+        setHasClapped(hasUserClapped);
       } else {
         console.error("Article not found");
       }
@@ -70,9 +84,12 @@ function ArticleContent({ articleId }) {
     } finally {
       setLoading(false);
     }
-  }, [articleId]);
+  }, [articleId, user]);
 
   const handleClap = () => {
+    // If user already clapped, don't allow another clap
+    if (hasClapped) return;
+
     // Create updated article with incremented clap count
     const updatedArticle = {
       ...article,
@@ -80,8 +97,27 @@ function ArticleContent({ articleId }) {
     };
 
     setArticle(updatedArticle);
+    setHasClapped(true);
 
-    // Update in localStorage
+    // Record that this user has clapped this article
+    const userId = user?.id || "anonymous";
+    const clappedArticles = JSON.parse(
+      localStorage.getItem("medium-clapped-articles") || "[]"
+    );
+
+    // Add this article to the list of articles the user has clapped for
+    clappedArticles.push({
+      articleId,
+      userId,
+      timestamp: new Date().toISOString(),
+    });
+
+    localStorage.setItem(
+      "medium-clapped-articles",
+      JSON.stringify(clappedArticles)
+    );
+
+    // Update article in localStorage
     const savedArticles = JSON.parse(
       localStorage.getItem("medium-published-articles") || "[]"
     );
@@ -359,9 +395,18 @@ function ArticleContent({ articleId }) {
               <div className="flex items-center space-x-6">
                 <button
                   onClick={handleClap}
-                  className="flex items-center space-x-2 text-gray-600 hover:text-green-600 transition-colors group"
+                  className={`flex items-center space-x-1 ${
+                    hasClapped
+                      ? "text-green-600 cursor-default"
+                      : "text-gray-500 hover:text-gray-700"
+                  }`}
+                  disabled={hasClapped}
                 >
-                  <span className="inline-block transition-transform duration-200 ease-out group-hover:scale-125 group-hover:rotate-12">
+                  <span
+                    className={`inline-block transition-transform duration-200 ease-in-out ${
+                      !hasClapped && "hover:scale-110"
+                    }`}
+                  >
                     👏
                   </span>
                   <span className="font-medium">{article.claps || 0}</span>
@@ -452,7 +497,7 @@ function ArticleContent({ articleId }) {
                         </p>
                       </div>
                     </div>
-                    <p className="text-gray-700 pl-13">{comment.content}</p>
+                    <p className="text-gray-900">{comment.content}</p>
                   </div>
                 ))}
               </div>
@@ -487,7 +532,7 @@ function ArticleContent({ articleId }) {
                   <textarea
                     value={commentText}
                     onChange={(e) => setCommentText(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg p-4 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white"
+                    className="w-full border border-gray-300 rounded-lg p-4 min-h-[120px] focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all bg-white text-gray-900"
                     placeholder="What are your thoughts?"
                   ></textarea>
                   <div className="flex justify-end mt-3">
