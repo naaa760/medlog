@@ -383,97 +383,107 @@ export default function Feed() {
 
       <main className={styles.main}>
         <div className={styles.contentLayout}>
-          {/* Main Content Area */}
+          {/* Article Section */}
           <div className={styles.articlesSection}>
             {loading ? (
-              <div className={styles.loading}>Loading articles...</div>
+              <div className={styles.loadingArticles}>
+                <div className={styles.articleSkeleton}>
+                  <div className={styles.skeletonTitle}></div>
+                  <div className={styles.skeletonExcerpt}></div>
+                  <div
+                    className={styles.skeletonExcerpt}
+                    style={{ width: "70%" }}
+                  ></div>
+                </div>
+                <div className={styles.articleSkeleton}>
+                  <div className={styles.skeletonTitle}></div>
+                  <div className={styles.skeletonExcerpt}></div>
+                  <div
+                    className={styles.skeletonExcerpt}
+                    style={{ width: "60%" }}
+                  ></div>
+                </div>
+              </div>
             ) : error ? (
-              <div className={styles.error}>{error}</div>
+              <div className={styles.errorMessage}>{error}</div>
             ) : filteredArticles.length === 0 ? (
               <div className={styles.noArticles}>
-                {activeTab === "following" && followedTopics.length === 0 ? (
-                  <>
-                    <p>Follow some topics to see articles here.</p>
-                    <div className={styles.suggestedTopicsSmall}>
-                      {topicsToFollow.slice(0, 5).map((topic, index) => (
-                        <button
-                          key={index}
-                          className={styles.topicTagSmall}
-                          onClick={() => followTopic(topic)}
-                        >
-                          {topic}
-                        </button>
-                      ))}
-                    </div>
-                  </>
-                ) : (
-                  <>
-                    <p>No articles found in this category yet.</p>
-                    <Link href="/write" className={styles.writeFirstLink}>
-                      Write the first story
-                    </Link>
-                  </>
-                )}
+                <h3>No articles found in this category yet.</h3>
+                <p>Be the first to write about this topic!</p>
+                <Link href="/write" className={styles.writeFirstLink}>
+                  Write your first story
+                </Link>
               </div>
             ) : (
               filteredArticles.map((article) => (
                 <article key={article.id} className={styles.articleCard}>
                   <div className={styles.articleContent}>
-                    <div className={styles.articleAuthor}>
-                      <img
-                        src={`https://ui-avatars.com/api/?name=${article.author.firstName}+${article.author.lastName}&background=random`}
-                        alt={`${article.author.firstName} ${article.author.lastName}`}
-                        className={styles.authorImage}
-                      />
-                      <span className={styles.authorName}>
-                        {article.author.firstName} {article.author.lastName}
-                      </span>
+                    <div className={styles.articleMeta}>
+                      <Link
+                        href={`/profile/${article.author?.id || "anonymous"}`}
+                        className={styles.authorInfo}
+                      >
+                        <div className={styles.authorAvatar}>
+                          {article.author?.imageUrl ? (
+                            <img
+                              src={article.author.imageUrl}
+                              alt={article.author.firstName || "Author"}
+                            />
+                          ) : (
+                            <span>{article.author?.firstName?.[0] || "A"}</span>
+                          )}
+                        </div>
+                        <span className={styles.authorName}>
+                          {article.author?.firstName || "Anonymous"}{" "}
+                          {article.author?.lastName || ""}
+                        </span>
+                      </Link>
+                      <span className={styles.dot}>·</span>
                       <span className={styles.articleDate}>
-                        ·{" "}
                         {new Date(article.createdAt).toLocaleDateString(
                           "en-US",
-                          { month: "short", day: "numeric" }
+                          {
+                            month: "short",
+                            day: "numeric",
+                          }
                         )}
                       </span>
+                      {article.topics && article.topics.length > 0 && (
+                        <div className={styles.articleTopics}>
+                          {article.topics.map((topic, index) => (
+                            <span
+                              key={index}
+                              className={styles.articleTopic}
+                              onClick={() => {
+                                // Set active tab to this topic's tab
+                                const topicTab = topic
+                                  .toLowerCase()
+                                  .replace(/\s+/g, "-");
+                                setActiveTab(topicTab);
+                              }}
+                            >
+                              {topic}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <Link
                       href={`/article/${article.id}`}
-                      className={styles.articleLink}
+                      className={styles.articleTitle}
                     >
-                      <h2 className={styles.articleTitle}>{article.title}</h2>
+                      <h2>{article.title}</h2>
                     </Link>
-                    <p className={styles.articleExcerpt}>{article.excerpt}</p>
-                    {article.topics && article.topics.length > 0 && (
-                      <div className={styles.articleTopics}>
-                        {article.topics.map((topic, index) => (
-                          <span
-                            key={index}
-                            className={styles.articleTopic}
-                            onClick={() => {
-                              // Set active tab to this topic's tab
-                              const topicTab = topic
-                                .toLowerCase()
-                                .replace(/\s+/g, "-");
-                              setActiveTab(topicTab);
-                            }}
-                          >
-                            {topic}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                    <div className={styles.articleMeta}>
-                      <div className={styles.metaLeft}>
-                        <span className={styles.readTime}>
-                          {article.readTime}
-                        </span>
-                        <span className={styles.dot}>·</span>
-                        <span className={styles.category}>
-                          {article.category || "Technology"}
-                        </span>
-                      </div>
-                      <div className={styles.metaRight}>
-                        <button className={styles.saveBtn}>
+                    <Link href={`/article/${article.id}`}>
+                      <p className={styles.articleExcerpt}>{article.excerpt}</p>
+                    </Link>
+                    <div className={styles.articleActions}>
+                      <div className={styles.leftActions}>
+                        <div className={styles.actionButton}>
+                          <span>👏</span>
+                          <span>{article.claps || 0}</span>
+                        </div>
+                        <div className={styles.actionButton}>
                           <svg
                             width="24"
                             height="24"
@@ -481,15 +491,23 @@ export default function Feed() {
                             fill="none"
                           >
                             <path
-                              d="M17.5 1.25a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V2h-10v20h10v-5.25a.75.75 0 0 1 1.5 0v6a.75.75 0 0 1-.75.75h-11.5a.75.75 0 0 1-.75-.75v-21.5a.75.75 0 0 1 .75-.75h11.5z"
+                              d="M18 16.8a7.14 7.14 0 0 0 2.24-5.32c0-4.12-3.53-7.48-8.05-7.48C7.67 4 4 7.36 4 11.48c0 4.13 3.67 7.48 8.2 7.48a8.9 8.9 0 0 0 2.38-.32c.23.2.48.39.75.56 1.06.69 2.2 1.04 3.4 1.04.22 0 .4-.11.48-.29a.5.5 0 0 0-.04-.52 6.4 6.4 0 0 1-1.16-2.65v.02zm-3.12 1.06l-.06-.22-.32.1a8 8 0 0 1-2.3.33c-4.03 0-7.3-2.96-7.3-6.59S8.17 4.9 12.2 4.9c4.02 0 7.3 2.96 7.3 6.6 0 1.8-.6 3.47-2.02 4.72l-.2.16v.26l.02.3a6.74 6.74 0 0 0 .88 2.4 5.27 5.27 0 0 1-2.17-.86c-.28-.17-.72-.38-.94-.59l.01-.02z"
                               fill="currentColor"
                             ></path>
+                          </svg>
+                          <span>{article.comments?.length || 0}</span>
+                        </div>
+                      </div>
+                      <div className={styles.rightActions}>
+                        <button className={styles.saveButton} title="Save">
+                          <svg
+                            width="24"
+                            height="24"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                          >
                             <path
-                              d="M17.5 11.5a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5a.75.75 0 0 1-.75-.75z"
-                              fill="currentColor"
-                            ></path>
-                            <path
-                              d="M15 8a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0v-5.5A.75.75 0 0 1 15 8z"
+                              d="M17.5 1.25a.5.5 0 0 1 1 0v2.5H21a.5.5 0 0 1 0 1h-2.5v2.5a.5.5 0 0 1-1 0v-2.5H15a.5.5 0 0 1 0-1h2.5v-2.5zm-11 4.5a1 1 0 0 1 1-1H11a.5.5 0 0 0 0-1H7.5a2 2 0 0 0-2 2v14a.5.5 0 0 0 .8.4l5.7-4.4 5.7 4.4a.5.5 0 0 0 .8-.4v-8.5a.5.5 0 0 0-1 0v7.48l-5.2-4a.5.5 0 0 0-.6 0l-5.2 4V5.75z"
                               fill="currentColor"
                             ></path>
                           </svg>
@@ -513,34 +531,6 @@ export default function Feed() {
           {/* Sidebar */}
           <aside className={styles.sidebar}>
             <div className={styles.sidebarSticky}>
-              <div className={styles.staffPicks}>
-                <h3 className={styles.sidebarHeading}>Staff Picks</h3>
-                <div className={styles.staffPicksList}>
-                  {staffPicks.map((pick, index) => (
-                    <div key={index} className={styles.staffPickItem}>
-                      <div className={styles.pickAuthor}>
-                        <img
-                          src={pick.avatar}
-                          alt={pick.author}
-                          className={styles.pickAuthorImage}
-                        />
-                        <span>
-                          {pick.author}{" "}
-                          {pick.isStarred && (
-                            <span className={styles.starIcon}>✓</span>
-                          )}
-                        </span>
-                      </div>
-                      <h4 className={styles.pickTitle}>{pick.title}</h4>
-                      <span className={styles.pickDate}>{pick.date}</span>
-                    </div>
-                  ))}
-                </div>
-                <Link href="#" className={styles.seeAllLink}>
-                  See the full list
-                </Link>
-              </div>
-
               <div className={styles.topicsSection}>
                 <h3 className={styles.sidebarHeading}>Recommended topics</h3>
                 <div className={styles.topicTags}>
