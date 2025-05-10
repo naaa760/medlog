@@ -376,11 +376,11 @@ function ArticleContent({ articleId }) {
           {/* Article topics */}
           {article.topics && article.topics.length > 0 && (
             <div className="mt-10 pt-6 border-t border-gray-100">
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mt-4">
                 {article.topics.map((topic, index) => (
                   <span
                     key={index}
-                    className="px-3 py-1 bg-gray-100 hover:bg-gray-200 rounded-full text-sm text-gray-700 transition-colors"
+                    className="text-xs bg-gray-100 px-3 py-1 rounded-full text-black font-medium"
                   >
                     {topic}
                   </span>

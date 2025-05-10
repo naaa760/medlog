@@ -30,30 +30,33 @@
 }
 
 .publishButton {
-  background-color: #1a8917;
-  color: white;
+  background: linear-gradient(135deg, #0f9d58, #1a8917);
   border: none;
-  border-radius: 99em;
-  padding: 6px 16px;
-  font-size: 14px;
-  font-weight: 400;
-  cursor: pointer;
-  transition: background-color 0.2s;
+  color: white;
+  padding: 8px 20px;
+  border-radius: 100px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 10px rgba(26, 137, 23, 0.2);
 }
 
-.publishButton:hover {
-  background-color: #156912;
+.publishButton:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(26, 137, 23, 0.25);
+  background: linear-gradient(135deg, #0f9d58, #0c7d13);
 }
 
 .publishButton:disabled {
-  background-color: #6b9a6a;
+  background: linear-gradient(135deg, #95c3ab, #9dc099);
   cursor: not-allowed;
 }
 
 .editorContainer {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 40px 24px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  padding: 40px 48px;
+  margin-top: 32px;
 }
 
 .editor {
@@ -63,30 +66,113 @@
 }
 
 .titleInput {
+  font-family: "Georgia", serif;
   font-size: 42px;
   font-weight: 700;
+  color: #1a1a1a;
   border: none;
   outline: none;
   padding: 8px 0;
-  color: rgba(41, 41, 41, 1);
-  font-family: "Georgia", serif;
+  border-bottom: 2px solid transparent;
+  transition: border-color 0.3s ease, color 0.3s ease;
+  width: 100%;
+}
+
+.titleInput:focus {
+  border-bottom: 2px solid #0f9d58;
+  color: #000000;
 }
 
 .titleInput::placeholder {
-  color: rgba(117, 117, 117, 1);
+  color: rgba(117, 117, 117, 0.8);
 }
 
 .contentInput {
-  min-height: 500px;
-  font-size: 21px;
-  line-height: 32px;
-  color: rgba(41, 41, 41, 1);
-  border: none;
-  outline: none;
-  resize: none;
   font-family: "Georgia", serif;
+  font-size: 21px;
+  line-height: 1.6;
+  color: #292929;
+  transition: all 0.2s ease;
 }
 
 .contentInput::placeholder {
   color: rgba(117, 117, 117, 1);
+}
+
+.block {
+  position: relative;
+  margin: 16px 0;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+}
+
+.block:hover {
+  background-color: rgba(240, 240, 240, 0.4);
+}
+
+.aiToolsButton {
+  background: linear-gradient(135deg, #4285f4, #0f9d58);
+  color: white;
+  border-radius: 100px;
+  display: flex;
+  align-items: center;
+  padding: 10px 14px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 12px rgba(66, 133, 244, 0.2);
+}
+
+.aiToolsButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(66, 133, 244, 0.3);
+}
+
+.aiMenu {
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.suggestionCard {
+  border: 1px solid #f0f0f0;
+  border-radius: 8px;
+  padding: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.suggestionCard:hover {
+  background-color: #f9f9f9;
+  border-color: #e0e0e0;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+}
+
+.tag {
+  background-color: #f5f5f5;
+  color: #333;
+  border-radius: 100px;
+  padding: 4px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.tag:hover {
+  background-color: #ececec;
+  transform: translateY(-1px);
 }

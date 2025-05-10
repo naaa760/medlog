@@ -659,9 +659,10 @@
   padding: 4px 10px;
   border-radius: 100px;
   background-color: rgba(242, 242, 242, 1);
-  color: rgba(41, 41, 41, 1);
+  color: rgba(0, 0, 0, 0.9);
   cursor: pointer;
   transition: background-color 0.2s;
+  font-weight: 500;
 }
 
 .articleTopic:hover {

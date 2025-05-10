@@ -5,6 +5,12 @@ import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { v4 as uuidv4 } from "uuid";
+import {
+  generateSummary,
+  suggestTags,
+  suggestTitles,
+  useGroqGenerator,
+} from "@/services/groqService";
 
 export default function WritePage() {
   const { user, isLoaded, isSignedIn } = useUser();
@@ -27,6 +33,18 @@ export default function WritePage() {
   const userMenuRef = useRef(null);
   const fileInputRef = useRef(null);
   const [editingArticleId, setEditingArticleId] = useState(null);
+  const [summary, setSummary] = useState("");
+  const [suggestedTags, setSuggestedTags] = useState([]);
+  const [suggestedTitles, setSuggestedTitles] = useState([]);
+
+  const [_, summaryLoading, summaryError, generateArticleSummary] =
+    useGroqGenerator(generateSummary);
+  const [__, tagsLoading, tagsError, generateArticleTags] =
+    useGroqGenerator(suggestTags);
+  const [___, titlesLoading, titlesError, generateArticleTitles] =
+    useGroqGenerator(suggestTitles);
+
+  const [aiMenuOpen, setAiMenuOpen] = useState(false);
 
   // Auto-resize the content textarea as user types
   useEffect(() => {
@@ -353,7 +371,72 @@ export default function WritePage() {
     }
   };
 
-  const publishArticle = async () => {
+  // Function to generate all AI content
+  const generateAIContent = async () => {
+    // Combine all blocks content
+    const articleContent = blocks.map((block) => block.content).join("\n\n");
+
+    if (articleContent.trim().length < 100) {
+      alert("Please add more content before generating AI suggestions");
+      return;
+    }
+
+    // Generate summary
+    const summaryResult = await generateArticleSummary(articleContent);
+    if (summaryResult) setSummary(summaryResult);
+
+    // Generate tags
+    const tagsResult = await generateArticleTags(articleContent);
+    if (tagsResult) setSuggestedTags(tagsResult);
+
+    // Generate titles if no title exists yet
+    if (!title.trim()) {
+      const titlesResult = await generateArticleTitles(articleContent);
+      if (titlesResult) setSuggestedTitles(titlesResult);
+    }
+  };
+
+  // Function to apply a suggested title
+  const applyTitle = (title) => {
+    setTitle(title);
+    setSuggestedTitles([]);
+  };
+
+  // Function to apply a tag
+  const applyTag = (tag) => {
+    // You would integrate this with your existing topic system
+    // This is just a placeholder implementation
+    const existingTopics = blocks.some((block) =>
+      block.content.includes(`#${tag}`)
+    );
+
+    if (!existingTopics) {
+      // Add the tag to the end of the first text block
+      const newBlocks = [...blocks];
+      const firstTextBlockIndex = newBlocks.findIndex(
+        (block) => block.type === "text"
+      );
+
+      if (firstTextBlockIndex !== -1) {
+        newBlocks[firstTextBlockIndex] = {
+          ...newBlocks[firstTextBlockIndex],
+          content: `${newBlocks[firstTextBlockIndex].content} #${tag}`,
+        };
+        setBlocks(newBlocks);
+      }
+    }
+  };
+
+  // Integrate with your existing publishArticle function
+  const publishArticleWithAI = async () => {
+    // If we don't have a summary yet, generate one
+    if (!summary && blocks.some((block) => block.content)) {
+      const articleContent = blocks.map((block) => block.content).join("\n\n");
+      const summaryResult = await generateArticleSummary(articleContent);
+      if (summaryResult) setSummary(summaryResult);
+    }
+
+    // Continue with regular publish, but now include the summary
     if (!title.trim()) {
       alert("Please add a title to your article");
       return;
@@ -369,7 +452,19 @@ export default function WritePage() {
 
       // Extract topics from content - look for hashtags or determine category
       const contentText = blocks.map((b) => b.content).join(" ");
-      const detectedTopics = detectTopicsFromContent(contentText);
+      let detectedTopics = detectTopicsFromContent(contentText);
+
+      // Add any AI-suggested tags that aren't already included
+      if (suggestedTags.length > 0) {
+        suggestedTags.forEach((tag) => {
+          if (!detectedTopics.includes(tag)) {
+            detectedTopics.push(tag);
+          }
+        });
+      }
+
+      // Limit to 5 topics
+      detectedTopics = detectedTopics.slice(0, 5);
 
       // Prompt user to add topics if none detected
       const finalTopics =
@@ -386,7 +481,7 @@ export default function WritePage() {
         id: Date.now(),
         title,
         content: blocks.map((b) => b.content).join("\n\n"),
-        excerpt: blocks[0].content.substring(0, 150) + "...",
+        excerpt: summary || blocks[0].content.substring(0, 150) + "...", // Use AI summary if available
         readTime: `${Math.max(
           1,
           Math.ceil(
@@ -399,7 +494,7 @@ export default function WritePage() {
         },
         createdAt: new Date().toISOString(),
         claps: 0,
-        topics: finalTopics, // Add topics to the article
+        topics: finalTopics,
         image: "https://picsum.photos/seed/" + Date.now() + "/400/268",
       };
 
@@ -509,15 +604,11 @@ export default function WritePage() {
 
           <div className="flex items-center gap-4">
             <button
-              onClick={publishArticle}
+              onClick={publishArticleWithAI}
               disabled={
                 isSaving || !title || !blocks.some((block) => block.content)
               }
-              className={`px-4 py-1.5 rounded-full text-sm font-medium ${
-                isSaving || !title || !blocks.some((block) => block.content)
-                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-                  : "bg-green-600 text-white hover:bg-green-700"
-              }`}
+              className="publishButton"
             >
               {isSaving ? "Publishing..." : "Publish"}
             </button>
@@ -698,7 +789,7 @@ export default function WritePage() {
         <div className="relative editor-container">
           {/* Block-based content */}
           {blocks.map((block, index) => (
-            <div key={block.id} className="relative mb-4">
+            <div key={block.id} className="block">
               {block.type === "text" && (
                 <>
                   {/* Plus button next to empty text blocks */}
@@ -842,6 +933,138 @@ export default function WritePage() {
           )}
         </div>
       </main>
+
+      {/* AI Tools Section */}
+      <div className="fixed bottom-8 right-8 z-10">
+        <button
+          onClick={() => setAiMenuOpen(!aiMenuOpen)}
+          className="bg-green-600 hover:bg-green-700 text-white rounded-full p-3 shadow-lg flex items-center justify-center transition-all"
+          title="AI Assistance"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M13 10V3L4 14h7v7l9-11h-7z"
+            />
+          </svg>
+        </button>
+
+        {aiMenuOpen && (
+          <div className="absolute bottom-16 right-0 bg-white rounded-lg shadow-xl border border-gray-200 w-80 overflow-hidden">
+            <div className="p-4 border-b border-gray-200">
+              <h3 className="font-medium text-gray-900">AI Assistance</h3>
+              <p className="text-sm text-gray-500">Generate content using AI</p>
+            </div>
+
+            <div className="p-4">
+              <button
+                onClick={generateAIContent}
+                disabled={summaryLoading || tagsLoading || titlesLoading}
+                className={`w-full py-2 px-4 rounded-md text-white font-medium ${
+                  summaryLoading || tagsLoading || titlesLoading
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700"
+                }`}
+              >
+                {summaryLoading || tagsLoading || titlesLoading ? (
+                  <span className="flex items-center justify-center">
+                    <svg
+                      className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      ></circle>
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                      ></path>
+                    </svg>
+                    Generating...
+                  </span>
+                ) : (
+                  "Generate AI Suggestions"
+                )}
+              </button>
+
+              {/* Suggested Titles */}
+              {suggestedTitles.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    Suggested Titles
+                  </h4>
+                  <div className="space-y-2">
+                    {suggestedTitles.map((suggestedTitle, index) => (
+                      <div
+                        key={index}
+                        onClick={() => applyTitle(suggestedTitle)}
+                        className="suggestionCard"
+                      >
+                        {suggestedTitle}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Suggested Tags */}
+              {suggestedTags.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    Suggested Tags
+                  </h4>
+                  <div className="flex flex-wrap gap-2">
+                    {suggestedTags.map((tag, index) => (
+                      <span
+                        key={index}
+                        onClick={() => applyTag(tag)}
+                        className="tag"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Generated Summary */}
+              {summary && (
+                <div className="mt-4">
+                  <h4 className="font-medium text-gray-900 mb-2">
+                    AI-Generated Summary
+                  </h4>
+                  <p className="text-sm text-gray-700 p-3 bg-gray-50 rounded-md">
+                    {summary}
+                  </p>
+                </div>
+              )}
+
+              {/* Error Messages */}
+              {(summaryError || tagsError || titlesError) && (
+                <div className="mt-4 p-3 bg-red-50 text-red-700 rounded-md text-sm">
+                  Error generating AI content. Please try again.
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
